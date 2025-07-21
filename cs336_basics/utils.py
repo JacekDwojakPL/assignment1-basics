@@ -3,10 +3,9 @@ from collections import Counter, defaultdict
 import regex as re
 from .pretokenization_example import find_chunk_boundaries
 
-SPLIT_PATTERN = r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
-# SPLIT_PATTERN = r"\w+"
+# SPLIT_PATTERN = r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
+SPLIT_PATTERN = r"\w+"
 words_counter = Counter()
-pairs_counter = Counter()
 pair_to_words = defaultdict(set)
 words_to_pair = defaultdict(set)
 
@@ -16,11 +15,6 @@ def split_pretoken_to_pairs(pretoken):
 
 def update_counters(pretokens):
     words_counter.update(pretokens)
-    for pretoken in pretokens:
-        for pair in split_pretoken_to_pairs(pretoken):
-            pairs_counter.update([pair])
-            pair_to_words[pair].add(pretoken)
-            words_to_pair[pretoken].add(pair)
 
 def read_and_count_chunk(input_path, start_chunk, end_chunk, split_special_token):
     result = []
@@ -33,7 +27,7 @@ def read_and_count_chunk(input_path, start_chunk, end_chunk, split_special_token
     
     return result
 
-def get_word_counts(input_path, num_chunks, special_token=b"<|endoftext|>"):
+def get_word_counts(input_path, vocab_size, num_chunks, special_token=b"<|endoftext|>"):
     f = open(input_path, "rb")
     chunks = find_chunk_boundaries(f, num_chunks, split_special_token=special_token)
     f.close()
@@ -42,5 +36,12 @@ def get_word_counts(input_path, num_chunks, special_token=b"<|endoftext|>"):
         pool.apply_async(read_and_count_chunk, (input_path, start_chunk, end_chunk, special_token), callback=update_counters)
     pool.close()
     pool.join()
-    
+    pairs_counter = Counter()
+
+    for pretoken, count in words_counter.items():
+        for pair in split_pretoken_to_pairs(pretoken):
+            pairs_counter[pair] += count
+            pair_to_words[pair].add(pretoken)
+            words_to_pair[pretoken].add(pair)
+
     return (words_counter, pairs_counter, pair_to_words, words_to_pair)
