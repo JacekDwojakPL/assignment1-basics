@@ -1,47 +1,46 @@
-import multiprocessing as mp
 from collections import Counter
-import os
-import regex as re
-from pathlib import Path
-from .utils import get_word_counts
-
+from .utils import get_word_counts, split_pretoken_to_pairs, perform_merge
 
 def train_bpe(input_path, vocab_size, special_tokens):
-    vocab = {i:bytes(chr(i), "utf-8") for i in range(256)}
+    vocab = {i:token.encode() for (i, token) in enumerate(special_tokens)}
+    vocab.update({i + len(special_tokens): bytes([i]) for i in range(256)})
+
     merges = []
-    word_counts, pair_counts, pair_to_word, words_to_pair = get_word_counts(input_path, vocab_size, 24, "<|endoftext|>".encode())
+    words_counter, pairs_counter, pairs_to_word, word_to_pairs = get_word_counts(input_path, 4, special_tokens)
+    if vocab_size > len(vocab):
+        vocab_size = vocab_size - len(vocab)
+
     for i in range(vocab_size):
-        new_pair = None
         # get most frequent pair
-        most_frequent_pair = sorted(pair_counts.most_common(), key=lambda x: (x[1], x[0]))[-1]
-        if not most_frequent_pair:
-            continue
-    
-        pair, pair_count = most_frequent_pair
-        # get words with that pair
-        pair_words = pair_to_word[pair]
-        # make new merge and vocab index
-        merges.append((bytes(f"{pair[0]}", "utf-8"),  bytes(f"{pair[1]}", "utf-8")))
-        vocab[256 + i] = bytes(f"{pair[0]}{pair[1]}", "utf-8")
-        for word in pair_words:
-            split = list(filter(lambda s: len(s), re.split(re.escape(f"{pair[0]}{pair[1]}"), word)))
-            if not len(split):
-                continue
-            split = split[0]
-            new_pair = (split[-1], f"{pair[0]}{pair[1]}")
-            word_count = word_counts[word]
-            pair_counts[new_pair] += word_count
-            pairs = words_to_pair[word]
-            
-            for p in pairs:
-                if f"{p[0]}{p[1]}" in f"{new_pair[0]}{new_pair[1]}":
-                    del pair_counts[p]
-            words_to_pair[word].add(new_pair)
-            if pair in words_to_pair[word]:
-                words_to_pair[word].remove(pair)
-        del pair_counts[pair]
-        del pair_to_word[pair]
+        most_frequent_pair = max(pairs_counter.items(), key=lambda p: (p[1], p[0]))
+        if len(most_frequent_pair) == 0:
+            break
         
-        pair_to_word[new_pair] = pair_words
+        pair, pair_count = most_frequent_pair
+        del pairs_counter[pair]
+        # get words with that pair
+        affected_words = pairs_to_word[pair].copy()
+        # make new merge and vocab index
+        merges.append((pair[0].encode(), pair[1].encode()))
+        vocab[256 + len(special_tokens) + i] = pair[0].encode() + pair[1].encode()
+
+        for word in affected_words:
+            word_count = words_counter[word]
+            old_pairs = word_to_pairs[word]
+            new_word = perform_merge(word, pair)
+            new_pairs = [p for p in split_pretoken_to_pairs(new_word)]
+
+            for p_remove in old_pairs:
+                pairs_counter[p_remove] -= word_count
+                pairs_to_word[p_remove].discard(word)
+
+            for p_add in new_pairs:
+                pairs_counter[p_add] += word_count
+                pairs_to_word[p_add].add(new_word)
+            
+            del word_to_pairs[word]
+            word_to_pairs[new_word] = new_pairs
+            words_counter[new_word] = words_counter[word]
+            del words_counter[word]
 
     return vocab, merges
