@@ -1,29 +1,26 @@
-from collections import Counter
 from .utils import get_word_counts, split_pretoken_to_pairs, perform_merge
-
+from tqdm import tqdm
 def train_bpe(input_path, vocab_size, special_tokens):
     vocab = {i:token.encode() for (i, token) in enumerate(special_tokens)}
     vocab.update({i + len(special_tokens): bytes([i]) for i in range(256)})
 
     merges = []
-    words_counter, pairs_counter, pairs_to_word, word_to_pairs = get_word_counts(input_path, 16, special_tokens)
+    words_counter, pairs_counter, pairs_to_word, word_to_pairs = get_word_counts(input_path, 1, special_tokens)
     if vocab_size > len(vocab):
         vocab_size = vocab_size - len(vocab)
 
-    for i in range(vocab_size):
+    for i in tqdm(range(vocab_size)):
         # get most frequent pair
         if not pairs_counter:
             break
-        most_frequent_pair = max(pairs_counter.items(), key=lambda p: (p[1], p[0]))
-        
-        pair, pair_count = most_frequent_pair
+        pair = max(pairs_counter.items(), key=lambda p: (p[1], p[0]))[0]
         del pairs_counter[pair]
         # get words with that pair
         affected_words = pairs_to_word[pair].copy()
         # make new merge and vocab index
         new_idx = 256 + len(special_tokens) + i
-        vocab[new_idx] = pair[0].encode() + pair[1].encode()
-        merges.append((pair[0].encode(), pair[1].encode()))
+        vocab[new_idx] = pair[0] + pair[1]
+        merges.append((pair[0], pair[1]))
 
         for word in affected_words:
             word_count = words_counter[word]

@@ -4,6 +4,7 @@ import regex as re
 from .pretokenization_example import find_chunk_boundaries
 
 SPLIT_PATTERN = r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
+BYTE_MAP = {i: bytes([i]) for i in range(256)}
 
 def init_counters():
     words_counter = Counter()
@@ -31,13 +32,13 @@ def split_pretoken_to_pairs(pretoken):
 def update_counters(pretokens, counters):
     words_counter, pairs_counter, pairs_to_word, word_to_pairs = counters
     for pretoken in pretokens:
-        words_counter.update([tuple(pretoken)])
+        words_counter.update([pretoken])
         pairs = []
         for pair in split_pretoken_to_pairs(pretoken):
             pairs_counter.update([pair])
-            pairs_to_word[pair].add(tuple(pretoken))
+            pairs_to_word[pair].add(pretoken)
             pairs.append(pair)
-        word_to_pairs[tuple(pretoken)] = pairs
+        word_to_pairs[pretoken] = pairs
 
 def read_and_count_chunk(input_path, start_chunk, end_chunk, split_special_token):
     result = []
@@ -46,8 +47,8 @@ def read_and_count_chunk(input_path, start_chunk, end_chunk, split_special_token
         text = f.read(end_chunk - start_chunk)
         for doc in re.splititer(split_special_token, text):
             matches = re.finditer(SPLIT_PATTERN, doc)
-            result.extend([m.group() for m in matches])
-    
+            for m in matches:
+                result.extend([tuple(BYTE_MAP[p] for p in m.group().encode())])
     return result
 
 def get_word_counts(input_path, num_chunks, special_tokens=[]):
