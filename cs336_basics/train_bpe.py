@@ -5,7 +5,7 @@ def train_bpe(input_path, vocab_size, special_tokens):
     vocab.update({i + len(special_tokens): bytes([i]) for i in range(256)})
 
     merges = []
-    words_counter, pairs_counter, pairs_to_word, word_to_pairs = get_word_counts(input_path, 4, special_tokens)
+    words_counter, pairs_counter, pairs_to_word, word_to_pairs = get_word_counts(input_path, 64, special_tokens)
     if vocab_size > len(vocab):
         vocab_size = vocab_size - len(vocab)
 

@@ -65,23 +65,27 @@ def get_word_counts(input_path, num_chunks, special_tokens=[]):
     split_special_token = "|".join([token for token in special_tokens])
     f = open(input_path, "rb")
     chunks = find_chunk_boundaries(f, num_chunks, split_special_token=split_special_token.encode("utf-8"))
+    chunk_pairs = [(chunks[i], chunks[i+1]) for i in range(len(chunks)-1)]
     f.close()
-    pool = mp.Pool(mp.cpu_count())
-    result = []
     
-    for start_chunk, end_chunk in zip(chunks[:-1], chunks[1:]):
-        logging.info(f"start processing chunk {start_chunk} {end_chunk}")
-        result.append(pool.apply_async(read_and_count_chunk, (input_path, start_chunk, end_chunk, split_special_token)))
-    pool.close()
-    pool.join()
-    
-    for r in result:
-        l_words_counter, l_pairs_counter, l_pairs_to_word, l_word_to_pairs = r.get()
-        words_counter.update(l_words_counter)
-        pairs_counter.update(l_pairs_counter)
-        for pair, words in l_pairs_to_word.items():
-            pairs_to_word[pair].update(words)
-        for word, pairs in l_word_to_pairs.items():
-            word_to_pairs[word] = pairs
+    for i in range(0, len(chunk_pairs), mp.cpu_count()):
+        batch = chunk_pairs[i:i+mp.cpu_count()]
+        
+        with mp.Pool(mp.cpu_count()) as pool:
+            result = []
+
+            for start_chunk, end_chunk in batch:
+                logging.info(f"start processing chunk {start_chunk} {end_chunk}")
+                result.append(pool.apply_async(read_and_count_chunk, 
+                                               (input_path, start_chunk, end_chunk, split_special_token)))
+        
+            for r in result:
+                l_words_counter, l_pairs_counter, l_pairs_to_word, l_word_to_pairs = r.get()
+                words_counter.update(l_words_counter)
+                pairs_counter.update(l_pairs_counter)
+                for pair, words in l_pairs_to_word.items():
+                    pairs_to_word[pair].update(words)
+                for word, pairs in l_word_to_pairs.items():
+                    word_to_pairs[word] = pairs
 
     return (words_counter, pairs_counter, pairs_to_word, word_to_pairs)
