@@ -1,7 +1,7 @@
 import multiprocessing as mp
 from collections import Counter, defaultdict
 import regex as re
-from .pretokenization_example import find_chunk_boundaries
+from .pretokenization import find_chunk_boundaries
 import logging
 
 logging.basicConfig(

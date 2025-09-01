@@ -1,16 +1,13 @@
 import os
 from pathlib import Path
-from cs336_basics.train_bpe import train_bpe
-from tests.common import FIXTURES_PATH
+from cs336_basics.BPE import BPETrainer
 
-def run_training():
-    MODE = 'valid'
-    datapath = Path(os.getcwd() + "/data")
-    # filename = f"TinyStoriesV2-GPT4-{MODE}.txt"
-    filename = f"example.txt"
-    input_path = datapath / filename
-    vocab, merges = train_bpe(FIXTURES_PATH / 'corpus.en', 150, ["<|endoftext|>"])
-    # print(vocab, merges)
-
-if __name__ == "__main__":
-    run_training()
+MODE = 'valid'
+datapath = Path(os.getcwd() + "/data")
+outputpath = Path(os.getcwd() + "/outputs")
+filename = f"example.txt"
+vocab_size = 10000
+input_path = datapath / filename
+trainer = BPETrainer(vocab_size, ["<|endoftext|>"])
+trainer.train(datapath / filename)
+trainer.serialize(outputpath / "tiny_stories_vocab.json", outputpath / "tiny_stories_merges.txt")
