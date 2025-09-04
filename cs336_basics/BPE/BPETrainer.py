@@ -65,10 +65,7 @@ class BPETrainer:
         
         with open(merges_output_path, "w") as f:
             for m in self.merges:
-                f.write(m[0].decode("utf-8", errors="backslashreplace").replace(" ", "Ġ"))
-                f.write(" ")
-                f.write(m[1].decode("utf-8", errors="backslashreplace").replace(" ", "Ġ"))
-                f.write("\n")
+                f.write(f"{m[0]} {m[1]}\n")
             f.close()
         
             
