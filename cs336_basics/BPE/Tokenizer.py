@@ -32,11 +32,21 @@ class Tokenizer:
                 merged = True
                 new_pretoken = []
                 
+                merge_candidates = list(filter(lambda p: p[0] in pretoken_copy and p[1] in pretoken_copy and p[0]+p[1] in pretoken, self.merges))
+                
                 for i in range(len(pretoken_copy)):
                     if i < len(pretoken_copy)-1:
                         pair = (pretoken_copy[i], pretoken_copy[i+1])
-                        if(pair in self.merges):
-                            new_pretoken = perform_merge(pretoken_copy, pair)
+                        pair_to_merge = merge_candidates.pop(0) if len(merge_candidates) else None
+                        # for p in merge_candidates:
+                            # if p == pair:
+                                # pair_to_merge = p
+                                # break
+
+                        if(pair_to_merge):
+                            new_pretoken = perform_merge(pretoken_copy, pair_to_merge)
+                            if new_pretoken == pretoken_copy:
+                                continue
                             merged = False
                             break
                         else:
@@ -47,7 +57,7 @@ class Tokenizer:
             ids.extend(pretoken_copy)
 
         ret = [self.inverse_vocab[id] for id in ids]
-        print(ret)
+
         return ret
     
     def encode_iterable(self, pointer):
