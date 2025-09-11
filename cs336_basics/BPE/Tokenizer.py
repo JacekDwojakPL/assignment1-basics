@@ -7,9 +7,15 @@ class Tokenizer:
         self.vocab = vocab
         self.inverse_vocab = {v:k for k,v in self.vocab.items()}
         self.merges = merges
-        self.special_tokens = special_tokens
-        self.special_tokens_split_pattern = "|".join(["(" + re.escape(token) +")" for token in special_tokens]) if special_tokens else None
-    
+        self.special_tokens = sorted(special_tokens, reverse=True) if special_tokens else []
+        self.special_tokens_split_pattern = "|".join(["(" + re.escape(token) +")" for token in self.special_tokens]) if self.special_tokens else None
+        offset = len(self.vocab)
+        for i, sp in enumerate(self.special_tokens):
+            if sp.encode() in self.vocab.values():
+                continue
+            else:
+                self.vocab[offset+i] = sp.encode()
+                self.inverse_vocab[sp.encode()] = offset+i
     def encode(self, text):
         ids = [] 
         
@@ -65,6 +71,13 @@ class Tokenizer:
         return ret
     
     def encode_iterable(self, pointer):
+        while True:
+            try:
+                line = next(pointer)
+                for id in self.encode(line):
+                    yield id
+            except StopIteration:
+                break
         return []
     
     def decode(self, ids):
