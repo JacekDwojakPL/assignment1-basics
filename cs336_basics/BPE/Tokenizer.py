@@ -7,6 +7,8 @@ class Tokenizer:
         self.vocab = vocab
         self.inverse_vocab = {v:k for k,v in self.vocab.items()}
         self.merges = merges
+        self.merges_index = {v:i for i, v in enumerate(merges)}
+        self.merges_set = set(merges)
         self.special_tokens = sorted(special_tokens, reverse=True) if special_tokens else []
         self.special_tokens_split_pattern = "|".join(["(" + re.escape(token) +")" for token in self.special_tokens]) if self.special_tokens else None
         offset = len(self.vocab)
@@ -47,15 +49,18 @@ class Tokenizer:
             while not merged:
                 merged = True
                 new_pretoken = []
-                
-                merge_candidates = list(filter(lambda p: p[0] in pretoken_copy and p[1] in pretoken_copy and p[0]+p[1] in pretoken, self.merges))
+                merge_candidates = []
+                for p1, p2 in zip(pretoken_copy[:-1], pretoken_copy[1:]):
+                    if (p1, p2) in self.merges_set:
+                        merge_candidates.append(self.merges_index[(p1, p2)])
                 
                 for i in range(len(pretoken_copy)):
                     if i < len(pretoken_copy)-1:
-                        pair_to_merge = merge_candidates.pop(0) if len(merge_candidates) else None
-                        if(pair_to_merge):
-                            new_pretoken = perform_merge(pretoken_copy, pair_to_merge)
+                        pair_to_merge_idx = min(merge_candidates) if len(merge_candidates) else None
+                        if(pair_to_merge_idx):
+                            new_pretoken = perform_merge(pretoken_copy, self.merges[pair_to_merge_idx])
                             if new_pretoken == pretoken_copy:
+                                new_pretoken = []
                                 continue
                             merged = False
                             break
