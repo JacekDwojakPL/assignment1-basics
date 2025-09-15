@@ -40,7 +40,7 @@ class Tokenizer:
         for pretoken in pretokens:
             
             if self.special_tokens and pretoken in self.special_tokens:
-                ids.append(pretoken.encode())
+                ids.append(self.inverse_vocab[pretoken.encode()])
                 continue
 
             pretoken_copy = [bytes([b]) for b in pretoken]
@@ -57,7 +57,7 @@ class Tokenizer:
                 for i in range(len(pretoken_copy)):
                     if i < len(pretoken_copy)-1:
                         pair_to_merge_idx = min(merge_candidates) if len(merge_candidates) else None
-                        if(pair_to_merge_idx):
+                        if(pair_to_merge_idx is not None):
                             new_pretoken = perform_merge(pretoken_copy, self.merges[pair_to_merge_idx])
                             if new_pretoken == pretoken_copy:
                                 new_pretoken = []
@@ -69,11 +69,11 @@ class Tokenizer:
                     else:
                         new_pretoken.append(pretoken_copy[i])
                 pretoken_copy = new_pretoken
-            ids.extend(pretoken_copy)
+            ids.extend([self.inverse_vocab[id] for id in pretoken_copy])
 
-        ret = [self.inverse_vocab[id] for id in ids]
+        # ret = [self.inverse_vocab[id] for id in ids]
 
-        return ret
+        return ids
     
     def encode_iterable(self, pointer):
         while True:
