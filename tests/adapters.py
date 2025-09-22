@@ -11,6 +11,7 @@ from torch import Tensor
 
 from cs336_basics.BPE import BPETrainer, Tokenizer
 from cs336_basics.NN import Linear, Embedding, RMSNorm
+from cs336_basics.FF import Positionwise
 
 def run_linear(
     d_in: int,
@@ -90,8 +91,11 @@ def run_swiglu(
     # swiglu.w1.weight.data = w1_weight
     # swiglu.w2.weight.data = w2_weight
     # swiglu.w3.weight.data = w3_weight
-    raise NotImplementedError
-
+    ff = Positionwise(input_dim=d_model, output_dim=d_model)
+    ff.load_state_dict({"w1_weight": w1_weight, 
+                        "w2_weight": w2_weight, 
+                        "w3_weight": w3_weight})
+    return ff(in_features)
 
 def run_scaled_dot_product_attention(
     Q: Float[Tensor, " ... queries d_k"],
