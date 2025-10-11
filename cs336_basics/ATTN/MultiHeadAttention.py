@@ -28,7 +28,7 @@ class MultiHeadAttention(torch.nn.Module):
         k = rearrange(self.K(in_features), "... seq_len (num_head head_dim) -> ... num_head seq_len head_dim", num_head=self.num_heads)
         v = rearrange(self.V(in_features), "... seq_len (num_head head_dim) -> ... num_head seq_len head_dim", num_head=self.num_heads)
         
-        if self.rope:
+        if self.rope and token_positions is not None:
             q = self.rope.forward(q, token_positions[0])
             k = self.rope.forward(k, token_positions[0])
         

@@ -24,7 +24,7 @@ class Positionwise(nn.Module):
         
         return self.w2(h1 * z3)
     
-    def load_state_dict(self, state_dict, strict = True, assign = False):
+    def load_state_dict(self, state_dict):
         self.w1.load_state_dict({"weights": state_dict["w1_weight"]})
         self.w2.load_state_dict({"weights": state_dict["w2_weight"]})
         self.w3.load_state_dict({"weights": state_dict["w3_weight"]})
