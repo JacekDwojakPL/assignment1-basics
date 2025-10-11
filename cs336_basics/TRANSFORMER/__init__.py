@@ -1,3 +1,5 @@
 from .TransformerBlock import TransformerBlock
+from .TransformerModel import TransformerModel
 
 TransformerBlock
+TransformerModel

@@ -13,7 +13,7 @@ from cs336_basics.BPE import BPETrainer, Tokenizer
 from cs336_basics.NN import Linear, Embedding, RMSNorm
 from cs336_basics.FF import Positionwise
 from cs336_basics.ATTN import RotaryPositionEmbeddings, softmax, scaled_dot_product_attention, MultiHeadAttention
-from cs336_basics.TRANSFORMER import TransformerBlock
+from cs336_basics.TRANSFORMER import TransformerBlock, TransformerModel
 
 def run_linear(
     d_in: int,
@@ -312,7 +312,7 @@ def run_transformer_block(
                              d_ff=d_ff,
                              max_seq_len=max_seq_len,
                              theta=theta)
-    print(theta)
+
     block.load_state_dict({"q_proj_weight": weights["attn.q_proj.weight"], 
                            "k_proj_weight": weights["attn.k_proj.weight"], 
                            "v_proj_weight": weights["attn.v_proj.weight"], 
@@ -405,7 +405,17 @@ def run_transformer_lm(
         Float[Tensor, "batch_size sequence_length vocab_size"]: Tensor with the predicted unnormalized
         next-word distribution for each token.
     """
-    raise NotImplementedError
+    model = TransformerModel(vocab_size=vocab_size, 
+                             context_length=context_length,
+                             d_model=d_model,
+                             num_layers=num_layers,
+                             num_heads=num_heads,
+                             d_ff=d_ff,
+                             rope_theta=rope_theta)
+    
+    model.load_state_dict(weights)
+
+    return model(in_indices)
 
 
 def run_rmsnorm(
