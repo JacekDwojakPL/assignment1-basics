@@ -16,6 +16,7 @@ from cs336_basics.ATTN import RotaryPositionEmbeddings, softmax, scaled_dot_prod
 from cs336_basics.TRANSFORMER import TransformerBlock, TransformerModel
 from cs336_basics.LOSSES import crossentropy
 from cs336_basics.OPTIM import AdamW, WarmupCosineScheduler
+from cs336_basics.DATA import create_dataloader
 
 def run_linear(
     d_in: int,
@@ -479,7 +480,8 @@ def run_get_batch(
         is the sampled input sequences, and the second tuple item is the corresponding
         language modeling labels.
     """
-    raise NotImplementedError
+    dataloader = create_dataloader(dataset, batch_size=batch_size, context_length=context_length, device=device)
+    return next(iter(dataloader))
 
 
 def run_softmax(in_features: Float[Tensor, " ..."], dim: int) -> Float[Tensor, " ..."]:
