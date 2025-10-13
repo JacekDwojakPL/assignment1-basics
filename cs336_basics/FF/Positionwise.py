@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from jaxtyping import Float
-from cs336_basics.NN import Linear, swiglu
+from cs336_basics.NN import Linear, silu
 
 class Positionwise(nn.Module):
     
@@ -19,7 +19,7 @@ class Positionwise(nn.Module):
         
     def forward(self, x: torch.Tensor) -> Float[torch.Tensor, "... output_dim"]:
         z1 = self.w1(x)
-        h1 = swiglu(z1)
+        h1 = silu(z1)
         z3 = self.w3(x)
         
         return self.w2(h1 * z3)

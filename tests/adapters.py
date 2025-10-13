@@ -10,7 +10,7 @@ from jaxtyping import Bool, Float, Int
 from torch import Tensor
 
 from cs336_basics.BPE import BPETrainer, Tokenizer
-from cs336_basics.NN import Linear, Embedding, RMSNorm
+from cs336_basics.NN import Linear, Embedding, RMSNorm, silu
 from cs336_basics.FF import Positionwise
 from cs336_basics.ATTN import RotaryPositionEmbeddings, softmax, scaled_dot_product_attention, MultiHeadAttention
 from cs336_basics.TRANSFORMER import TransformerBlock, TransformerModel
@@ -457,7 +457,7 @@ def run_silu(in_features: Float[Tensor, " ..."]) -> Float[Tensor, " ..."]:
         Float[Tensor,"..."]: of with the same shape as `in_features` with the output of applying
         SiLU to each element.
     """
-    raise NotImplementedError
+    return silu(in_features)
 
 
 def run_get_batch(
