@@ -8,6 +8,7 @@ class AdamW(torch.optim.Optimizer):
                  betas=(0.9, 0.999),
                  eps=1e-8):
         defaults = {"lr": lr,
+                    "initial_lr": lr,
                     "weight_decay": weight_decay, 
                     "betas": betas,
                     "eps": eps}

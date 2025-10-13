@@ -15,7 +15,7 @@ from cs336_basics.FF import Positionwise
 from cs336_basics.ATTN import RotaryPositionEmbeddings, softmax, scaled_dot_product_attention, MultiHeadAttention
 from cs336_basics.TRANSFORMER import TransformerBlock, TransformerModel
 from cs336_basics.LOSSES import crossentropy
-from cs336_basics.OPTIM import AdamW
+from cs336_basics.OPTIM import AdamW, WarmupCosineScheduler
 
 def run_linear(
     d_in: int,
@@ -560,7 +560,14 @@ def run_get_lr_cosine_schedule(
     Returns:
         Learning rate at the given iteration under the specified schedule.
     """
-    raise NotImplementedError
+    optim = AdamW([torch.zeros(10)], lr=max_learning_rate)
+    scheduler = WarmupCosineScheduler(optim, 
+                                      warmup_iters,
+                                      cosine_cycle_iters, 
+                                      lr_min=min_learning_rate, 
+                                      last_epoch=it-1)
+
+    return scheduler.get_lr()[0]
 
 
 def run_save_checkpoint(
