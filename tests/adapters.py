@@ -9,15 +9,15 @@ import torch
 from jaxtyping import Bool, Float, Int
 from torch import Tensor
 
-from cs336_basics.BPE import BPETrainer, Tokenizer
-from cs336_basics.NN import Linear, Embedding, RMSNorm, silu
-from cs336_basics.FF import Positionwise
-from cs336_basics.ATTN import RotaryPositionEmbeddings, softmax, scaled_dot_product_attention, MultiHeadAttention
-from cs336_basics.TRANSFORMER import TransformerBlock, TransformerModel
-from cs336_basics.LOSSES import crossentropy
-from cs336_basics.OPTIM import AdamW, WarmupCosineScheduler, gradient_clipping
-from cs336_basics.DATA import create_dataloader
-from cs336_basics.UTILS import save_checkpoint, load_checkpoint
+from cs336_basics.tokenization import BPETrainer, Tokenizer
+from cs336_basics.nn import Linear, Embedding, RMSNorm, silu
+from cs336_basics.feedforward import Positionwise
+from cs336_basics.attention import RotaryPositionEmbeddings, softmax, scaled_dot_product_attention, MultiHeadAttention
+from cs336_basics.transformer import TransformerBlock, TransformerModel
+from cs336_basics.losses import crossentropy
+from cs336_basics.optim import AdamW, WarmupCosineScheduler, gradient_clipping
+from cs336_basics.data import create_dataloader
+from cs336_basics.utils import save_checkpoint, load_checkpoint
 
 def run_linear(
     d_in: int,

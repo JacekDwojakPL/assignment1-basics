@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from jaxtyping import Float
-from cs336_basics.NN import Linear, silu
+from cs336_basics.nn import Linear, silu
 
 class Positionwise(nn.Module):
     

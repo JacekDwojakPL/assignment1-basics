@@ -1,6 +1,6 @@
 import torch
-from cs336_basics.NN import Embedding, Linear, RMSNorm
-from cs336_basics.TRANSFORMER import TransformerBlock
+from cs336_basics.nn import Embedding, Linear, RMSNorm
+from cs336_basics.transformer import TransformerBlock
 
 
 class TransformerModel(torch.nn.Module):

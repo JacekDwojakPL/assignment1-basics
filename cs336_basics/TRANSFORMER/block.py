@@ -1,7 +1,7 @@
 import torch
-from cs336_basics.ATTN import MultiHeadAttention
-from cs336_basics.NN import RMSNorm
-from cs336_basics.FF import Positionwise
+from cs336_basics.attention import MultiHeadAttention
+from cs336_basics.nn import RMSNorm
+from cs336_basics.feedforward import Positionwise
 
 class TransformerBlock(torch.nn.Module):
     def __init__(self, d_model: int, num_heads: int, d_ff: int, max_seq_len: int, theta: float):

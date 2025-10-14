@@ -1,8 +1,8 @@
 import torch
 from einops import rearrange, einsum
-from .ScaledDotProductAttention import scaled_dot_product_attention
-from .RotaryPositionEmbeddings import RotaryPositionEmbeddings
-from cs336_basics.NN import Linear
+from .scaled_attention import scaled_dot_product_attention
+from .positional import RotaryPositionEmbeddings
+from cs336_basics.nn import Linear
 
 class MultiHeadAttention(torch.nn.Module):
     def __init__(self, d_model, num_heads, with_rope=False, max_seq_len=None, theta=None):

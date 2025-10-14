@@ -1,3 +1,6 @@
-from .utils import save_checkpoint, load_checkpoint
+from .checkpoint import save_checkpoint, load_checkpoint
 
-save_checkpoint, load_checkpoint
+__all__ = [
+    "save_checkpoint",
+    "load_checkpoint",
+]

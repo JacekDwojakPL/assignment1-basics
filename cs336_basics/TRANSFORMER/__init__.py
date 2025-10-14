@@ -1,5 +1,7 @@
-from .TransformerBlock import TransformerBlock
-from .TransformerModel import TransformerModel
+from .block import TransformerBlock
+from .model import TransformerModel
 
-TransformerBlock
-TransformerModel
+__all__ = [
+    "TransformerBlock",
+    "TransformerModel",
+]

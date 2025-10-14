@@ -1,3 +1,5 @@
-from .Crossentropy import crossentropy
+from .crossentropy import crossentropy
 
-crossentropy
+__all__ = [
+    "crossentropy",
+]

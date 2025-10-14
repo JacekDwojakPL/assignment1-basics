@@ -1,7 +1,7 @@
 import torch
 from jaxtyping import Float, Bool
 from einops import einsum
-from .Softmax import softmax
+from .softmax import softmax
 
 def scaled_dot_product_attention(query: Float[torch.Tensor, " ... queries d_k"], 
                                  key: Float[torch.Tensor, " ... keys d_k"], 

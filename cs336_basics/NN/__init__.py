@@ -1,9 +1,11 @@
-from .Linear import Linear
-from .Embedding import Embedding
-from .RMSNorm import RMSNorm
-from .Silu import silu
+from .linear import Linear
+from .embedding import Embedding
+from .normalization import RMSNorm
+from .activations import silu
 
-Linear
-Embedding
-RMSNorm
-silu
+__all__ = [
+    "Linear",
+    "Embedding",
+    "RMSNorm",
+    "silu",
+]
