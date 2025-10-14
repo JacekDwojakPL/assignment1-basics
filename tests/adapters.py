@@ -15,8 +15,9 @@ from cs336_basics.FF import Positionwise
 from cs336_basics.ATTN import RotaryPositionEmbeddings, softmax, scaled_dot_product_attention, MultiHeadAttention
 from cs336_basics.TRANSFORMER import TransformerBlock, TransformerModel
 from cs336_basics.LOSSES import crossentropy
-from cs336_basics.OPTIM import AdamW, WarmupCosineScheduler
+from cs336_basics.OPTIM import AdamW, WarmupCosineScheduler, gradient_clipping
 from cs336_basics.DATA import create_dataloader
+from cs336_basics.UTILS import save_checkpoint, load_checkpoint
 
 def run_linear(
     d_in: int,
@@ -527,7 +528,7 @@ def run_gradient_clipping(parameters: Iterable[torch.nn.Parameter], max_l2_norm:
 
     The gradients of the parameters (parameter.grad) should be modified in-place.
     """
-    raise NotImplementedError
+    gradient_clipping(parameters=parameters, max_norm=max_l2_norm)
 
 
 def get_adamw_cls() -> Any:
@@ -588,7 +589,7 @@ def run_save_checkpoint(
             we've completed.
         out (str | os.PathLike | BinaryIO | IO[bytes]): Path or file-like object to serialize the model, optimizer, and iteration to.
     """
-    raise NotImplementedError
+    save_checkpoint(model, optimizer, iteration, out)
 
 
 def run_load_checkpoint(
@@ -609,7 +610,7 @@ def run_load_checkpoint(
     Returns:
         int: the previously-serialized number of iterations.
     """
-    raise NotImplementedError
+    return load_checkpoint(src, model, optimizer)
 
 
 def get_tokenizer(
