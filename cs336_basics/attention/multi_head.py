@@ -1,11 +1,13 @@
 import torch
+from torch import Tensor
+from jaxtyping import Float, Int
 from einops import rearrange, einsum
 from .scaled_attention import scaled_dot_product_attention
 from .positional import RotaryPositionEmbeddings
 from cs336_basics.nn import Linear
 
 class MultiHeadAttention(torch.nn.Module):
-    def __init__(self, d_model, num_heads, with_rope=False, max_seq_len=None, theta=None):
+    def __init__(self, d_model: int, num_heads: int, with_rope: bool = False, max_seq_len: int | None = None, theta: float | None = None):
         super(MultiHeadAttention, self).__init__()
         self.d_model = d_model
         self.num_heads = num_heads
@@ -21,7 +23,7 @@ class MultiHeadAttention(torch.nn.Module):
         if with_rope:
             self.rope = RotaryPositionEmbeddings(theta=theta, d_k=self.d_k, max_seq_len=max_seq_len)
    
-    def forward(self, in_features, token_positions=None):
+    def forward(self, in_features: Float[Tensor, "... seq_len d_model"], token_positions: Int[Tensor, "... seq_len"] | None = None) -> Float[Tensor, "... seq_len d_model"]:
         seq_length = in_features.shape[1]
         
         q = rearrange(self.Q(in_features), "... seq_len (num_head head_dim) -> ... num_head seq_len head_dim", num_head=self.num_heads)

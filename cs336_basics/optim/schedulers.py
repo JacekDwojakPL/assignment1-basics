@@ -1,15 +1,16 @@
 from math import cos, pi
+from typing import List
 from torch.optim.lr_scheduler import _LRScheduler
 
 
 class WarmupCosineScheduler(_LRScheduler):
-    def __init__(self, optimizer, warmup_iters, cosine_cycle_iters, lr_min=0, last_epoch=-1):
+    def __init__(self, optimizer, warmup_iters: int, cosine_cycle_iters: int, lr_min: float = 0, last_epoch: int = -1):
         self.warmup_iters = warmup_iters
         self.cosine_cycle_iters = cosine_cycle_iters
         self.lr_min = lr_min
         super().__init__(optimizer, last_epoch)
     
-    def get_lr(self):
+    def get_lr(self) -> List[float]:
         timestep = self.last_epoch       
         if timestep < self.warmup_iters:
             warmup_factor = timestep / self.warmup_iters

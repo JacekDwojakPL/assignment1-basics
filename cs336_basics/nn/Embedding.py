@@ -4,7 +4,7 @@ from torch import Tensor
 from jaxtyping import Float, Int
 
 class Embedding(nn.Module):
-    def __init__(self, input_dim, embedding_dim, device=None, dtype=None):
+    def __init__(self, input_dim: int, embedding_dim: int, device=None, dtype=None):
         super(Embedding, self).__init__()
         
         self.input_dim = input_dim

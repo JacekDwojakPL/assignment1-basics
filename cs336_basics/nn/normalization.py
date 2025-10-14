@@ -1,5 +1,7 @@
 import torch
 import torch.nn as nn
+from torch import Tensor
+from jaxtyping import Float
 from einops import einsum
 
 class RMSNorm(nn.Module):
@@ -12,7 +14,7 @@ class RMSNorm(nn.Module):
         self.weights = torch.empty(d_model)
         nn.init.normal_(self.weights) 
     
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Float[Tensor, "... d_model"]) -> Float[Tensor, "... d_model"]:
         input_type = x.dtype
         x = x.to(torch.float32)
         mean = self._mean(x)
@@ -20,8 +22,8 @@ class RMSNorm(nn.Module):
         
         return result.to(input_type)
         
-    def _mean(self, x):
-        
+    def _mean(self, x: Float[Tensor, "... d_model"]) -> Float[Tensor, "... 1"]:
+
         return torch.sqrt(torch.mean(x**2, dim=-1, keepdim=True) + self.eps)
     
     def load_state_dict(self, state_dict):

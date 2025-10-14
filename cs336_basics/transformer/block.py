@@ -1,4 +1,6 @@
 import torch
+from torch import Tensor
+from jaxtyping import Float
 from cs336_basics.attention import MultiHeadAttention
 from cs336_basics.nn import RMSNorm
 from cs336_basics.feedforward import Positionwise
@@ -21,7 +23,7 @@ class TransformerBlock(torch.nn.Module):
         self.ln2 = RMSNorm(d_model=d_model)
 
 
-    def forward(self, x):
+    def forward(self, x: Float[Tensor, "... seq_len d_model"]) -> Float[Tensor, "... seq_len d_model"]:
         token_positions = torch.arange(0, x.shape[1]).unsqueeze(0)
         x = self.mha(self.ln1(x), token_positions) + x
         x = self.ff(self.ln2(x)) + x

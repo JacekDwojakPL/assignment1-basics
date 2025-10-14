@@ -1,4 +1,6 @@
 import torch
+from torch import Tensor
+from jaxtyping import Float, Int
 from cs336_basics.nn import Embedding, Linear, RMSNorm
 from cs336_basics.transformer import TransformerBlock
 
@@ -29,7 +31,7 @@ class TransformerModel(torch.nn.Module):
         self.ln = RMSNorm(d_model=self.d_model)
         self.ff = Linear(self.d_model, self.vocab_size)
 
-    def forward(self, x):
+    def forward(self, x: Int[Tensor, "... seq_len"]) -> Float[Tensor, "... seq_len vocab_size"]:
         embeddings = self.embedding(x)
         y = self.blocks(embeddings)
         y = self.ln(y)

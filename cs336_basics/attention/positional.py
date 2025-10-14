@@ -1,5 +1,7 @@
 import torch
 import torch.nn as nn
+from torch import Tensor
+from jaxtyping import Float, Int
 from einops import einsum, rearrange
 
 class RotaryPositionEmbeddings(nn.Module):
@@ -10,7 +12,7 @@ class RotaryPositionEmbeddings(nn.Module):
         self.max_seq_len = max_seq_len
         self.embedding_dim = d_k
         self.k = self.embedding_dim // 2
-        self.rotation_matrix  = torch.empty((self.max_seq_len, self.k, 2, 2))
+        self.rotation_matrix  = torch.zeros((self.max_seq_len, self.k, 2, 2))
         for i in range(self.max_seq_len):
             for k in range(self.k):
                 phi = torch.tensor(i / self.theta**(2*k/self.embedding_dim))
@@ -19,7 +21,7 @@ class RotaryPositionEmbeddings(nn.Module):
                 self.rotation_matrix[i][k] = torch.tensor([[c, s], [-s, c]])
         
 
-    def forward(self, x: torch.Tensor, token_positions: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Float[Tensor, "... seq_len d_k"], token_positions: Int[Tensor, "seq_len"]) -> Float[Tensor, "... seq_len d_k"]:
         angles = self.rotation_matrix[token_positions]
         x_t = rearrange(x, "... (embedding k) -> ... embedding k", k=2)
         rotated = einsum(x_t, angles, "... seq_len embedding k, seq_len embedding k j -> ... seq_len embedding j")

@@ -1,12 +1,13 @@
 import torch
+from typing import Iterable, Tuple
 
 class AdamW(torch.optim.Optimizer):
-    def __init__(self, 
-                 params, 
-                 lr=1e-3, 
-                 weight_decay=0.01,
-                 betas=(0.9, 0.999),
-                 eps=1e-8):
+    def __init__(self,
+                 params: Iterable[torch.nn.Parameter],
+                 lr: float = 1e-3,
+                 weight_decay: float = 0.01,
+                 betas: Tuple[float, float] = (0.9, 0.999),
+                 eps: float = 1e-8):
         defaults = {"lr": lr,
                     "initial_lr": lr,
                     "weight_decay": weight_decay, 
@@ -15,7 +16,7 @@ class AdamW(torch.optim.Optimizer):
         super().__init__(params, defaults)
 
 
-    def step(self, closure=None):
+    def step(self, closure=None) -> torch.Tensor | None:
         loss = None if closure is None else closure()
         for group in self.param_groups:
             lr = group["lr"]
