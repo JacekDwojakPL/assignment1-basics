@@ -20,4 +20,4 @@ class Embedding(nn.Module):
         return self.w[x].to(self.dtype)
     
     def load_state_dict(self, state_dict):
-        self.w = state_dict["weights"]
+        self.w = nn.Parameter(state_dict["weights"])

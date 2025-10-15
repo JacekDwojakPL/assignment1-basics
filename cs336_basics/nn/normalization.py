@@ -27,4 +27,4 @@ class RMSNorm(nn.Module):
         return torch.sqrt(torch.mean(x**2, dim=-1, keepdim=True) + self.eps)
     
     def load_state_dict(self, state_dict):
-        self.weights = state_dict["weights"]
+        self.weights = nn.Parameter(state_dict["weights"])

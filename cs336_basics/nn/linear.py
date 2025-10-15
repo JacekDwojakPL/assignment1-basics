@@ -24,4 +24,4 @@ class Linear(nn.Module):
         return einsum(x.to(self.device), self.w, "batch_dim seq_length input_dim, output_dim input_dim -> batch_dim seq_length output_dim")
     
     def load_state_dict(self, state_dict):
-        self.w = state_dict["weights"]
+        self.w =  nn.Parameter(state_dict["weights"])
