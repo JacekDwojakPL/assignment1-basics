@@ -202,8 +202,7 @@ def run_multihead_self_attention_with_rope(
         implementation with the given QKV projection weights and input features.
     """
     mha = MultiHeadAttention(d_model, 
-                             num_heads, 
-                             with_rope=True, 
+                             num_heads,
                              theta=theta, 
                              max_seq_len=max_seq_len)
     state_dict = {"q_proj_weight": q_proj_weight, 

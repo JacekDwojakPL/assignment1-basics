@@ -7,21 +7,22 @@ from .positional import RotaryPositionEmbeddings
 from cs336_basics.nn import Linear
 
 class MultiHeadAttention(torch.nn.Module):
-    def __init__(self, d_model: int, num_heads: int, with_rope: bool = False, max_seq_len: int | None = None, theta: float | None = None):
+    def __init__(self, d_model: int, num_heads: int, max_seq_len: int | None = None, theta: float | None = None, device: str = "cpu"):
         super(MultiHeadAttention, self).__init__()
+        self.device = device
         self.d_model = d_model
         self.num_heads = num_heads
         self.d_q = d_model // num_heads
         self.d_k = self.d_q
         self.d_v = self.d_q
         self.d_o = self.d_q
-        self.Q = Linear(self.d_model, self.d_model)
-        self.K = Linear(self.d_model, self.d_model)
-        self.V = Linear(self.d_model, self.d_model)
-        self.O = Linear(self.d_model, self.d_model)
+        self.Q = Linear(self.d_model, self.d_model, device=self.device)
+        self.K = Linear(self.d_model, self.d_model, device=self.device)
+        self.V = Linear(self.d_model, self.d_model, device=self.device)
+        self.O = Linear(self.d_model, self.d_model, device=self.device)
         self.rope = None
-        if with_rope:
-            self.rope = RotaryPositionEmbeddings(theta=theta, d_k=self.d_k, max_seq_len=max_seq_len)
+        if theta:
+            self.rope = RotaryPositionEmbeddings(theta=theta, d_k=self.d_k, max_seq_len=max_seq_len, device=self.device)
    
     def forward(self, in_features: Float[Tensor, "... seq_len d_model"], token_positions: Int[Tensor, "... seq_len"] | None = None) -> Float[Tensor, "... seq_len d_model"]:
         seq_length = in_features.shape[1]

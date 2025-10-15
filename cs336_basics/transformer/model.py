@@ -12,7 +12,8 @@ class TransformerModel(torch.nn.Module):
                        num_layers: int,
                        num_heads: int, 
                        d_ff: int,  
-                       rope_theta: float):
+                       rope_theta: float | None = None,
+                       device: str = "cpu"):
         super(TransformerModel, self).__init__()
         
         self.vocab_size = vocab_size
@@ -22,14 +23,15 @@ class TransformerModel(torch.nn.Module):
         self.d_ff = d_ff
         self.num_heads = num_heads
         self.theta = rope_theta
-        self.embedding = Embedding(self.vocab_size, self.d_model)
+        self.device = device
+        self.embedding = Embedding(self.vocab_size, self.d_model, device)
         self.blocks = torch.nn.Sequential(*[TransformerBlock(d_model=self.d_model, 
                                                              num_heads=self.num_heads,
                                                              d_ff=self.d_ff,
                                                              max_seq_len=self.context_length,
                                                              theta=self.theta) for _ in range(self.num_layers)])
-        self.ln = RMSNorm(d_model=self.d_model)
-        self.ff = Linear(self.d_model, self.vocab_size)
+        self.ln = RMSNorm(d_model=self.d_model, device=self.device)
+        self.ff = Linear(self.d_model, self.vocab_size, device=self.device)
 
     def forward(self, x: Int[Tensor, "... seq_len"]) -> Float[Tensor, "... seq_len vocab_size"]:
         embeddings = self.embedding(x)
