@@ -29,7 +29,8 @@ class TransformerModel(torch.nn.Module):
                                                              num_heads=self.num_heads,
                                                              d_ff=self.d_ff,
                                                              max_seq_len=self.context_length,
-                                                             theta=self.theta) for _ in range(self.num_layers)])
+                                                             theta=self.theta,
+                                                             device=self.device) for _ in range(self.num_layers)])
         self.ln = RMSNorm(d_model=self.d_model, device=self.device)
         self.ff = Linear(self.d_model, self.vocab_size, device=self.device)
 

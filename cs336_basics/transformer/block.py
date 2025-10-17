@@ -17,8 +17,9 @@ class TransformerBlock(torch.nn.Module):
         self.mha = MultiHeadAttention(d_model=self.d_model, 
                                       num_heads=self.num_heads,
                                       max_seq_len=self.max_seq_len,
-                                      theta=self.theta)
-        self.ff = Positionwise(input_dim=d_model, output_dim=d_model)
+                                      theta=self.theta,
+                                      device=self.device)
+        self.ff = Positionwise(input_dim=d_model, output_dim=d_model, device=self.device)
         self.ln1 = RMSNorm(d_model=d_model, device=self.device)
         self.ln2 = RMSNorm(d_model=d_model, device=self.device)
 

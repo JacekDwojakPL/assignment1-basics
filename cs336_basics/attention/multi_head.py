@@ -36,7 +36,7 @@ class MultiHeadAttention(torch.nn.Module):
             k = self.rope.forward(k, token_positions[0])
         
         
-        mask = torch.tril(torch.ones((seq_length, seq_length))) == 1
+        mask = torch.tril(torch.ones((seq_length, seq_length), device=self.device)) == 1
         
         context = scaled_dot_product_attention(query=q, key=k, value=v, boolean_mask=mask)
         context = rearrange(context, "... num_head seq_len head_dim -> ... seq_len (num_head head_dim)")

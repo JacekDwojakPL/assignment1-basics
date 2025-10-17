@@ -3,6 +3,7 @@ from typing import List, Tuple
 from torch import Tensor
 from jaxtyping import Int
 from torch.utils.data import Dataset as TorchDataset, DataLoader
+import numpy as np
 
 class Dataset(TorchDataset):
     def __init__(self, data: List[int], context_length: int):
@@ -11,8 +12,8 @@ class Dataset(TorchDataset):
         self.data = data
     
     def __getitem__(self, index: int) -> Tuple[Int[Tensor, "context_length"], Int[Tensor, "context_length"]]:
-        x = torch.tensor(self.data[index:index+self.context_length], dtype=torch.long)
-        y = torch.tensor(self.data[index+1:index+1+self.context_length],  dtype=torch.long)
+        x = torch.from_numpy(self.data[index:index+self.context_length].astype(np.int64))
+        y = torch.from_numpy(self.data[index+1:index+1+self.context_length].astype(np.int64))
         return x, y
 
     def __len__(self) -> int:
