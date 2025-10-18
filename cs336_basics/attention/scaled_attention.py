@@ -3,13 +3,13 @@ from jaxtyping import Float, Bool
 from einops import einsum
 from .softmax import softmax
 
-def scaled_dot_product_attention(query: Float[torch.Tensor, " ... queries d_k"], 
-                                 key: Float[torch.Tensor, " ... keys d_k"], 
-                                 value: Float[torch.Tensor, " ... values d_v"], 
+def scaled_dot_product_attention(query: Float[torch.Tensor, " ... queries d_k"],
+                                 key: Float[torch.Tensor, " ... keys d_k"],
+                                 value: Float[torch.Tensor, " ... values d_v"],
                                  boolean_mask: Bool[torch.Tensor, " ... queries keys"] | None = None):
-    d_k = torch.tensor(query.shape[-1])
-    attention_scores = einsum(query, 
-                              key, 
+    d_k = torch.tensor(query.shape[-1], device=query.device)
+    attention_scores = einsum(query,
+                              key,
                               "batch_size ... decoder_seq_len d_k, batch_size ... encoder_seq_len d_k -> batch_size ... decoder_seq_len encoder_seq_len")
     attention_scores = attention_scores / torch.sqrt(d_k)
     if boolean_mask is not None:

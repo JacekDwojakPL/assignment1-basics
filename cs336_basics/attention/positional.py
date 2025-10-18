@@ -12,13 +12,13 @@ class RotaryPositionEmbeddings(nn.Module):
         self.max_seq_len = max_seq_len
         self.embedding_dim = d_k
         self.k = self.embedding_dim // 2
-        self.rotation_matrix  = torch.zeros((self.max_seq_len, self.k, 2, 2))
+        self.rotation_matrix  = torch.zeros((self.max_seq_len, self.k, 2, 2), device=self.device)
         for i in range(self.max_seq_len):
             for k in range(self.k):
-                phi = torch.tensor(i / self.theta**(2*k/self.embedding_dim))
+                phi = torch.tensor(i / self.theta**(2*k/self.embedding_dim), device=self.device)
                 s = torch.sin(phi)
                 c = torch.cos(phi)
-                self.rotation_matrix[i][k] = torch.tensor([[c, s], [-s, c]])
+                self.rotation_matrix[i][k] = torch.tensor([[c, s], [-s, c]], device=self.device)
         
 
     def forward(self, x: Float[Tensor, "... seq_len d_k"], token_positions: Int[Tensor, "seq_len"]) -> Float[Tensor, "... seq_len d_k"]:
