@@ -20,12 +20,13 @@ class Dataset(TorchDataset):
         return len(self.data) - self.context_length
     
 
-def create_dataloader(data: List[int], batch_size: int, context_length: int, device: str = "cpu") -> DataLoader:
-    def collate_fn(batch: List[Tuple[Int[Tensor, "context_length"], Int[Tensor, "context_length"]]]) -> Tuple[Int[Tensor, "batch context_length"], Int[Tensor, "batch context_length"]]:
-        x_batch = torch.stack([item[0] for item in batch]).to(device)
-        y_batch = torch.stack([item[1] for item in batch]).to(device)
-        return x_batch, y_batch
+def create_dataloader(data: List[int], context_length: int, device: str = "cpu") -> DataLoader:
     dataset = Dataset(data, context_length)
-    dataloader = DataLoader(dataset, batch_size, shuffle=True, collate_fn=collate_fn)
+    
+    def get_batch(batch_size):
+        indices = torch.randint(0, len(dataset), (batch_size,), device=device)
+        x = torch.stack([dataset[i][0].to(device) for i in indices])
+        y = torch.stack([dataset[i][1].to(device) for i in indices])
+        return (x, y)
 
-    return dataloader
+    return get_batch
