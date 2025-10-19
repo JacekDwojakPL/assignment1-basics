@@ -3,7 +3,7 @@ from torch import Tensor
 from jaxtyping import Float, Int
 from cs336_basics.nn import Embedding, Linear, RMSNorm
 from cs336_basics.transformer import TransformerBlock
-
+from cs336_basics.attention import softmax
 
 class TransformerModel(torch.nn.Module):
     def __init__(self, vocab_size: int,
@@ -42,6 +42,17 @@ class TransformerModel(torch.nn.Module):
 
         return y
     
+    def generate(self, start_seq: Int[Tensor, "... seq_len"], max_seq_length: Int = 10, temperature: Float = 0.0):
+        temp = torch.tensor(max(temperature, 1e-7), device=self.device, dtype=torch.float64)
+
+        for _ in range(max_seq_length - len(start_seq)):
+            z = self(start_seq)
+            probs = softmax(z[:, -1, :] / temp, dim=-1)
+            idx = torch.multinomial(probs, 1)
+            start_seq = torch.cat((start_seq, idx), -1)
+
+        return start_seq.squeeze().numpy()
+
     def load_state_dict(self, state_dict):
         self.embedding.load_state_dict({"weights": state_dict["token_embeddings.weight"]})
         self.ln.load_state_dict({"weights": state_dict["ln_final.weight"]})
