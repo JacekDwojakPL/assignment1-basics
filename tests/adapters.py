@@ -39,7 +39,7 @@ def run_linear(
     """
 
     linear = Linear(d_in, d_out)
-    linear.load_state_dict({ "weights": weights })
+    linear.load_state_dict({ "weight": weights })
     return linear(in_features)
 
 
@@ -63,8 +63,8 @@ def run_embedding(
     """
 
     embedding = Embedding(vocab_size, d_model)
-    embedding.load_state_dict({ "weights": weights })
-    
+    embedding.load_state_dict({ "weight": weights })
+
     return embedding(token_ids)
 
 
@@ -98,9 +98,9 @@ def run_swiglu(
     # swiglu.w2.weight.data = w2_weight
     # swiglu.w3.weight.data = w3_weight
     ff = Positionwise(input_dim=d_model, output_dim=d_model)
-    ff.load_state_dict({"w1_weight": w1_weight, 
-                        "w2_weight": w2_weight, 
-                        "w3_weight": w3_weight})
+    ff.load_state_dict({"w1.weight": w1_weight,
+                        "w2.weight": w2_weight,
+                        "w3.weight": w3_weight})
     return ff(in_features)
 
 def run_scaled_dot_product_attention(
@@ -156,10 +156,10 @@ def run_multihead_self_attention(
         implementation with the given QKV projection weights and input features.
     """
     mha = MultiHeadAttention(d_model, num_heads)
-    state_dict = {"q_proj_weight": q_proj_weight, 
-                  "k_proj_weight": k_proj_weight,
-                  "v_proj_weight": v_proj_weight,
-                  "o_proj_weight": o_proj_weight}
+    state_dict = {"q_proj.weight": q_proj_weight,
+                  "k_proj.weight": k_proj_weight,
+                  "v_proj.weight": v_proj_weight,
+                  "output_proj.weight": o_proj_weight}
     mha.load_state_dict(state_dict)
 
     return mha.forward(in_features)
@@ -201,14 +201,14 @@ def run_multihead_self_attention_with_rope(
         Float[Tensor, " ... sequence_length d_out"]: Tensor with the output of running your optimized, batched multi-headed attention
         implementation with the given QKV projection weights and input features.
     """
-    mha = MultiHeadAttention(d_model, 
+    mha = MultiHeadAttention(d_model,
                              num_heads,
-                             theta=theta, 
+                             theta=theta,
                              max_seq_len=max_seq_len)
-    state_dict = {"q_proj_weight": q_proj_weight, 
-                  "k_proj_weight": k_proj_weight,
-                  "v_proj_weight": v_proj_weight,
-                  "o_proj_weight": o_proj_weight}
+    state_dict = {"q_proj.weight": q_proj_weight,
+                  "k_proj.weight": k_proj_weight,
+                  "v_proj.weight": v_proj_weight,
+                  "output_proj.weight": o_proj_weight}
     mha.load_state_dict(state_dict)
 
     return mha.forward(in_features, token_positions)
@@ -310,22 +310,22 @@ def run_transformer_block(
         Float[Tensor, "batch sequence_length d_model"] Tensor with the output of
         running the Transformer block on the input features while using RoPE.
     """
-    block = TransformerBlock(d_model=d_model, 
+    block = TransformerBlock(d_model=d_model,
                              num_heads=num_heads,
                              d_ff=d_ff,
                              max_seq_len=max_seq_len,
                              theta=theta)
 
-    block.load_state_dict({"q_proj_weight": weights["attn.q_proj.weight"], 
-                           "k_proj_weight": weights["attn.k_proj.weight"], 
-                           "v_proj_weight": weights["attn.v_proj.weight"], 
-                           "o_proj_weight": weights["attn.output_proj.weight"], 
-                           "w1_weight": weights["ffn.w1.weight"], 
-                           "w2_weight": weights["ffn.w2.weight"], 
-                           "w3_weight": weights["ffn.w3.weight"], 
-                           "ln1_weights": weights["ln1.weight"], 
-                           "ln2_weights": weights["ln2.weight"]})
-    
+    block.load_state_dict({"attn.q_proj.weight": weights["attn.q_proj.weight"],
+                           "attn.k_proj.weight": weights["attn.k_proj.weight"],
+                           "attn.v_proj.weight": weights["attn.v_proj.weight"],
+                           "attn.output_proj.weight": weights["attn.output_proj.weight"],
+                           "ffn.w1.weight": weights["ffn.w1.weight"],
+                           "ffn.w2.weight": weights["ffn.w2.weight"],
+                           "ffn.w3.weight": weights["ffn.w3.weight"],
+                           "ln1.weight": weights["ln1.weight"],
+                           "ln2.weight": weights["ln2.weight"]})
+
     return block.forward(in_features)
 
 
@@ -442,7 +442,7 @@ def run_rmsnorm(
         RMSNorm of the `in_features`.
     """
     rms_norm = RMSNorm(d_model, eps)
-    rms_norm.load_state_dict({ "weights": weights })
+    rms_norm.load_state_dict({ "weight": weights })
     return rms_norm(in_features)
 
 

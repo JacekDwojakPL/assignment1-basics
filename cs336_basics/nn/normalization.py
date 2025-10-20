@@ -11,20 +11,17 @@ class RMSNorm(nn.Module):
         self.eps = eps
         self.device = device
         self.dtype = dtype
-        self.weights = nn.Parameter(torch.zeros(d_model, device=self.device))
-        nn.init.normal_(self.weights) 
-    
+        self.weight = nn.Parameter(torch.zeros(d_model, device=self.device))
+        nn.init.normal_(self.weight)
+
     def forward(self, x: Float[Tensor, "... d_model"]) -> Float[Tensor, "... d_model"]:
         input_type = x.dtype
         x = x.to(torch.float32)
         mean = self._mean(x)
-        result = (x / mean)*self.weights
-        
+        result = (x / mean)*self.weight
+
         return result.to(input_type)
-        
+
     def _mean(self, x: Float[Tensor, "... d_model"]) -> Float[Tensor, "... 1"]:
 
         return torch.sqrt(torch.mean(x**2, dim=-1, keepdim=True) + self.eps)
-    
-    def load_state_dict(self, state_dict):
-        self.weights = nn.Parameter(state_dict["weights"])

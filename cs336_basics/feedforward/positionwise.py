@@ -22,10 +22,5 @@ class Positionwise(nn.Module):
         z1 = self.w1(x)
         h1 = silu(z1)
         z3 = self.w3(x)
-        
+
         return self.w2(h1 * z3)
-    
-    def load_state_dict(self, state_dict):
-        self.w1.load_state_dict({"weights": state_dict["w1_weight"]})
-        self.w2.load_state_dict({"weights": state_dict["w2_weight"]})
-        self.w3.load_state_dict({"weights": state_dict["w3_weight"]})

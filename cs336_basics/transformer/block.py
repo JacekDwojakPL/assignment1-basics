@@ -14,30 +14,19 @@ class TransformerBlock(torch.nn.Module):
         self.max_seq_len = max_seq_len
         self.theta = theta
         self.device = device
-        self.mha = MultiHeadAttention(d_model=self.d_model, 
-                                      num_heads=self.num_heads,
-                                      max_seq_len=self.max_seq_len,
-                                      theta=self.theta,
-                                      device=self.device)
-        self.ff = Positionwise(input_dim=d_model, output_dim=d_model, device=self.device)
+        self.attn = MultiHeadAttention(d_model=self.d_model,
+                                       num_heads=self.num_heads,
+                                       max_seq_len=self.max_seq_len,
+                                       theta=self.theta,
+                                       device=self.device)
+        self.ffn = Positionwise(input_dim=d_model, output_dim=d_model, device=self.device)
         self.ln1 = RMSNorm(d_model=d_model, device=self.device)
         self.ln2 = RMSNorm(d_model=d_model, device=self.device)
 
 
     def forward(self, x: Float[Tensor, "... seq_len d_model"]) -> Float[Tensor, "... seq_len d_model"]:
         token_positions = torch.arange(0, x.shape[1]).unsqueeze(0)
-        x = self.mha(self.ln1(x), token_positions) + x
-        x = self.ff(self.ln2(x)) + x
+        x = self.attn(self.ln1(x), token_positions) + x
+        x = self.ffn(self.ln2(x)) + x
 
         return x
-
-    def load_state_dict(self, state_dict):
-        self.mha.load_state_dict({"q_proj_weight": state_dict["q_proj_weight"], 
-                                  "k_proj_weight": state_dict["k_proj_weight"], 
-                                  "v_proj_weight": state_dict["v_proj_weight"], 
-                                  "o_proj_weight": state_dict["o_proj_weight"]})
-        self.ff.load_state_dict({"w1_weight": state_dict["w1_weight"], 
-                                 "w2_weight": state_dict["w2_weight"], 
-                                 "w3_weight": state_dict["w3_weight"]})
-        self.ln1.load_state_dict({"weights": state_dict["ln1_weights"]})
-        self.ln2.load_state_dict({"weights": state_dict["ln2_weights"]})
