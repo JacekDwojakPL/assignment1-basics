@@ -1,6 +1,7 @@
 import torch
 from torch import Tensor
 from jaxtyping import Float, Int
+from typing import Literal
 from cs336_basics.nn import Embedding, Linear, RMSNorm
 from cs336_basics.transformer import TransformerBlock
 from cs336_basics.attention import softmax
@@ -13,7 +14,9 @@ class TransformerModel(torch.nn.Module):
                        num_heads: int, 
                        d_ff: int,  
                        rope_theta: float | None = None,
-                       device: str = "cpu"):
+                       device: str = "cpu",
+                       normalization: Literal["pre", "post", None] = "pre",
+                       activation: Literal["swiglu", "silu"] = "swiglu"):
         super(TransformerModel, self).__init__()
         
         self.vocab_size = vocab_size
@@ -24,20 +27,25 @@ class TransformerModel(torch.nn.Module):
         self.num_heads = num_heads
         self.theta = rope_theta
         self.device = device
+        self.normalization = normalization
+        self.activation = activation
         self.token_embeddings = Embedding(self.vocab_size, self.d_model, device)
         self.layers = torch.nn.Sequential(*[TransformerBlock(d_model=self.d_model,
                                                               num_heads=self.num_heads,
                                                               d_ff=self.d_ff,
                                                               max_seq_len=self.context_length,
                                                               theta=self.theta,
-                                                              device=self.device) for _ in range(self.num_layers)])
+                                                              device=self.device, 
+                                                              normalization=normalization,
+                                                              activation=activation) for _ in range(self.num_layers)])
         self.ln_final = RMSNorm(d_model=self.d_model, device=self.device)
         self.lm_head = Linear(self.d_model, self.vocab_size, device=self.device)
 
     def forward(self, x: Int[Tensor, "... seq_len"]) -> Float[Tensor, "... seq_len vocab_size"]:
         embeddings = self.token_embeddings(x)
         y = self.layers(embeddings)
-        y = self.ln_final(y)
+        if self.normalization != None:
+            y = self.ln_final(y)
         y = self.lm_head(y)
 
         return y
