@@ -15,7 +15,7 @@ class TransformerModel(torch.nn.Module):
                        d_ff: int,  
                        rope_theta: float | None = None,
                        device: str = "cpu",
-                       normalization: Literal["pre", "post", None] = "pre",
+                       normalization: Literal["pre", "post", "off"] = "pre",
                        activation: Literal["swiglu", "silu"] = "swiglu"):
         super(TransformerModel, self).__init__()
         
@@ -44,7 +44,7 @@ class TransformerModel(torch.nn.Module):
     def forward(self, x: Int[Tensor, "... seq_len"]) -> Float[Tensor, "... seq_len vocab_size"]:
         embeddings = self.token_embeddings(x)
         y = self.layers(embeddings)
-        if self.normalization != None:
+        if self.normalization != "off":
             y = self.ln_final(y)
         y = self.lm_head(y)
 

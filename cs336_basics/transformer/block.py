@@ -13,7 +13,7 @@ class TransformerBlock(torch.nn.Module):
                  max_seq_len: int, 
                  theta: float | None = None, 
                  device: str = "cpu",
-                 normalization: Literal["pre", "post", None] = "pre",
+                 normalization: Literal["pre", "post", "off"] = "pre",
                  activation: Literal["silu", "swiglu"] = "swiglu"):
         super(TransformerBlock, self).__init__()
         self.d_model = d_model
