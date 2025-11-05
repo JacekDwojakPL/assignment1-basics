@@ -149,7 +149,7 @@ def train(args: TransformerModelTrainingArgs):
     # Initialize wandb if enabled
     if args.with_wandb:
         try:
-            wandb_api_key = "8ecc5e0277074a67c8a90ba103039f4c27e10ade"
+            wandb_api_key = ""
             if wandb_api_key:
                 wandb.login(key=wandb_api_key)
 
